@@ -568,6 +568,7 @@ AC_ARG_ENABLE(dpms,           AS_HELP_STRING([--disable-dpms], [Build DPMS exten
 AC_ARG_ENABLE(config-udev,    AS_HELP_STRING([--enable-config-udev], [Build udev support (default: auto)]), [CONFIG_UDEV=$enableval], [CONFIG_UDEV=auto])
 AC_ARG_ENABLE(config-udev-kms,    AS_HELP_STRING([--enable-config-udev-kms], [Build udev kms support (default: auto)]), [CONFIG_UDEV_KMS=$enableval], [CONFIG_UDEV_KMS=auto])
 AC_ARG_ENABLE(config-hal,     AS_HELP_STRING([--disable-config-hal], [Build HAL support (default: auto)]), [CONFIG_HAL=$enableval], [CONFIG_HAL=auto])
+AC_ARG_ENABLE(config-devd,    AS_HELP_STRING([--disable-config-devd], [Build devd support (default: auto)]), [CONFIG_DEVD=$enableval], [CONFIG_DEVD=auto])
 AC_ARG_ENABLE(config-wscons,  AS_HELP_STRING([--enable-config-wscons], [Build wscons config support (default: auto)]), [CONFIG_WSCONS=$enableval], [CONFIG_WSCONS=auto])
 AC_ARG_ENABLE(xfree86-utils,     AS_HELP_STRING([--enable-xfree86-utils], [Build xfree86 DDX utilities (default: enabled)]), [XF86UTILS=$enableval], [XF86UTILS=yes])
 AC_ARG_ENABLE(vgahw,          AS_HELP_STRING([--enable-vgahw], [Build Xorg with vga access (default: enabled)]), [VGAHW=$enableval], [VGAHW=yes])
@@ -951,6 +952,21 @@ fi
 AM_CONDITIONAL(CONFIG_WSCONS, [test "x$CONFIG_WSCONS" = xyes])
 if test "x$CONFIG_WSCONS" = xyes; then
 	AC_DEFINE(CONFIG_WSCONS, 1, [Use wscons for input auto configuration])
+fi
+
+if test "x$CONFIG_DEVD" = xauto; then
+	case $host_os in
+		freebsd* | kfreebsd*-gnu)
+			CONFIG_DEVD=yes;
+			;;
+		*)
+			CONFIG_DEVD=no;
+			;;
+	esac
+fi
+AM_CONDITIONAL(CONFIG_DEVD, [test "x$CONFIG_DEVD" = xyes])
+if test "x$CONFIG_DEVD" = xyes; then
+	AC_DEFINE(CONFIG_DEVD, 1, [Use devd for input auto configuration])
 fi
 
 
@@ -2428,7 +2444,7 @@ AC_SUBST([prefix])
 
 AC_CONFIG_COMMANDS([sdksyms], [touch hw/xfree86/sdksyms.dep])
 
-if test "x$CONFIG_HAL" = xno && test "x$CONFIG_UDEV" = xno; then
+if test "x$CONFIG_HAL" = xno && test "x$CONFIG_UDEV" = xno && test "x$CONFIG_DEVD" = xno; then
     AC_MSG_WARN([
              ***********************************************
              Neither HAL nor udev backend will be enabled.
