@@ -774,6 +774,16 @@ xf86CrtcCloseScreen(ScreenPtr screen)
         xf86CrtcPtr crtc = config->crtc[c];
 
         crtc->randr_crtc = NULL;
+
+        if (crtc->transformPresent) {
+            crtc->transformPresent = FALSE;
+            RRTransformFini(&crtc->transform);
+        }
+
+        if (crtc->desiredTransformPresent) {
+            crtc->desiredTransformPresent = FALSE;
+            RRTransformFini(&crtc->desiredTransform);
+        }
     }
 
     screen->CloseScreen = config->CloseScreen;
