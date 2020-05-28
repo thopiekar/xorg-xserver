@@ -299,14 +299,21 @@ xf86CrtcPtr
 ms_dri2_crtc_covering_drawable(DrawablePtr pDraw)
 {
     ScreenPtr pScreen = pDraw->pScreen;
-    BoxRec box;
+    RRCrtcPtr crtc = NULL;
+    ScrnInfoPtr crtcScrnInfo = NULL;
 
-    box.x1 = pDraw->x;
-    box.y1 = pDraw->y;
-    box.x2 = box.x1 + pDraw->width;
-    box.y2 = box.y1 + pDraw->height;
-
-    return ms_covering_xf86_crtc(pScreen, &box, TRUE);
+    crtc = ms_randr_crtc_covering_drawable(pDraw);
+    if (!crtc) {
+        return NULL;
+    } else if (crtc->pScreen == pScreen) {
+        return crtc->devPrivate;
+    } else {
+        crtcScrnInfo = xf86ScreenToScrn(crtc->pScreen);
+        if (strcmp(crtcScrnInfo->driverName, "modesetting") == 0) {
+            return crtc->devPrivate;
+        }
+    }
+    return NULL;
 }
 
 RRCrtcPtr
