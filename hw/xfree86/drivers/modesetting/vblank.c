@@ -208,6 +208,8 @@ RRCrtcPtr
 ms_randr_crtc_covering_drawable(DrawablePtr pDraw)
 {
     ScreenPtr pScreen = pDraw->pScreen;
+    RRCrtcPtr crtc = NULL;
+    ScrnInfoPtr crtcScrnInfo = NULL;
     BoxRec box;
 
     box.x1 = pDraw->x;
@@ -215,7 +217,19 @@ ms_randr_crtc_covering_drawable(DrawablePtr pDraw)
     box.x2 = box.x1 + pDraw->width;
     box.y2 = box.y1 + pDraw->height;
 
-    return ms_covering_randr_crtc(pScreen, &box, TRUE);
+    crtc = ms_covering_randr_crtc(pScreen, &box, TRUE);
+    if (!crtc) {
+        return NULL;
+    } else if (crtc->pScreen == pScreen) {
+        return crtc;
+    } else {
+        crtcScrnInfo = xf86ScreenToScrn(crtc->pScreen);
+        if (strcmp(crtcScrnInfo->driverName, "modesetting") == 0) {
+            return crtc;
+        }
+    }
+    return NULL;
+
 }
 
 static Bool
