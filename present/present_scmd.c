@@ -625,7 +625,6 @@ static void
 present_scmd_update_window_crtc(WindowPtr window, RRCrtcPtr crtc, uint64_t new_msc)
 {
     present_window_priv_ptr window_priv = present_get_window_priv(window, TRUE);
-    uint64_t                old_ust, old_msc;
 
     /* Crtc unchanged, no offset. */
     if (crtc == window_priv->crtc)
@@ -637,11 +636,8 @@ present_scmd_update_window_crtc(WindowPtr window, RRCrtcPtr crtc, uint64_t new_m
         return;
     }
 
-    /* Crtc may have been turned off, just use whatever previous MSC we'd seen from this CRTC. */
-    if (present_get_ust_msc(window->drawable.pScreen, window_priv->crtc, &old_ust, &old_msc) != Success)
-        old_msc = window_priv->msc;
-
-    window_priv->msc_offset += new_msc - old_msc;
+    /* Crtc may have been turned off or destroyed, just use whatever previous MSC we'd seen from this CRTC. */
+    window_priv->msc_offset += new_msc - window_priv->msc;
     window_priv->crtc = crtc;
 }
 
