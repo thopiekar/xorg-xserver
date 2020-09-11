@@ -1740,10 +1740,16 @@ xf86RandR12CreateObjects12(ScreenPtr pScreen)
     }
 
     if (config->name) {
+        uint32_t caps = pScrn->capabilities;
         config->randr_provider = RRProviderCreate(pScreen, config->name,
                                                   strlen(config->name));
 
-        RRProviderSetCapabilities(config->randr_provider, pScrn->capabilities);
+        if (!pScreen->isGPU)
+            caps &= RR_Capability_SinkOffload | RR_Capability_SourceOutput;
+        else
+            caps &= RR_Capability_SourceOffload | RR_Capability_SinkOutput;
+
+        RRProviderSetCapabilities(config->randr_provider, caps);
     }
 
     return TRUE;
