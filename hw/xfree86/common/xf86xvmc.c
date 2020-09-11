@@ -148,11 +148,15 @@ xf86XvMCScreenInit(ScreenPtr pScreen,
 {
     XvMCAdaptorPtr pAdapt;
     xf86XvMCScreenPtr pScreenPriv;
-    XvScreenPtr pxvs = (XvScreenPtr) dixLookupPrivate(&pScreen->devPrivates,
-                                                      XF86XvScreenKey);
+    XvScreenPtr pxvs;
     int i, j;
 
-    if (noXvExtension)
+    if (noXvExtension || pScreen->isGPU || !XF86XvScreenKey)
+        return FALSE;
+
+    pxvs = (XvScreenPtr) dixLookupPrivate(&pScreen->devPrivates,
+                                          XF86XvScreenKey);
+    if (!pxvs)
         return FALSE;
 
     if (!(pAdapt = xallocarray(num_adaptors, sizeof(XvMCAdaptorRec))))
