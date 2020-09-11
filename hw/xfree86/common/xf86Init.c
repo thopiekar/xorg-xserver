@@ -836,6 +836,9 @@ OsVendorInit(void)
 
     if (!beenHere) {
         umask(022);
+        /* have glibc report internal abort traces to stderr instead of
+           the controlling terminal */
+        setenv("LIBC_FATAL_STDERR_", "1", 0);
         xf86LogInit();
     }
 
