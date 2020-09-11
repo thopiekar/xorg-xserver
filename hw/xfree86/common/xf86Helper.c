@@ -1139,10 +1139,10 @@ static void xf86_mkdir_p(char *path)
 
     while ((sep = strchr(sep + 1, '/'))) {
         *sep = 0;
-        (void)mkdir(path, 0777);
+        (void)mkdir(path, 0700);
         *sep = '/';
     }
-    (void)mkdir(path, 0777);
+    (void)mkdir(path, 0700);
 }
 
 void
