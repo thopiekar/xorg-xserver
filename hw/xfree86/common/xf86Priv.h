@@ -87,6 +87,7 @@ extern _X_EXPORT int xf86NumDrivers;
 extern _X_EXPORT Bool xf86Resetting;
 extern Bool xf86Initialising;
 extern _X_EXPORT int xf86NumScreens;
+extern _X_EXPORT Bool xf86AttemptedFallback;
 extern _X_EXPORT const char *xf86VisualNames[];
 extern _X_EXPORT int xf86Verbose;       /* verbosity level */
 extern _X_EXPORT int xf86LogVerbose;    /* log file verbosity level */

@@ -158,6 +158,7 @@ InputDriverPtr *xf86InputDriverList = NULL;
 int xf86NumInputDrivers = 0;
 int xf86NumScreens = 0;
 int xf86NumGPUScreens = 0;
+Bool xf86AttemptedFallback = FALSE;
 
 const char *xf86VisualNames[] = {
     "StaticGray",

@@ -410,20 +410,34 @@ InitOutput(ScreenInfo * pScreenInfo, int argc, char **argv)
             free(optionlist);
         }
 
+ Fallback:
         /* Load all driver modules specified in the config file */
         /* If there aren't any specified in the config file, autoconfig them */
         /* FIXME: Does not handle multiple active screen sections, but I'm not
          * sure if we really want to handle that case*/
         configured_device = xf86ConfigLayout.screens->screen->device;
-        if ((!configured_device) || (!configured_device->driver)) {
+        if (xf86AttemptedFallback) {
+            configured_device->driver = NULL;
+            if (!autoConfigDevice(configured_device)) {
+                xf86Msg(X_ERROR, "Auto configuration on fallback failed\n");
+                return;
+            }
+        }
+        else if ((!configured_device) || (!configured_device->driver)) {
             if (!autoConfigDevice(configured_device)) {
                 xf86Msg(X_ERROR, "Automatic driver configuration failed\n");
                 return;
             }
         }
         if ((modulelist = xf86DriverlistFromConfig())) {
-            xf86LoadModules(modulelist, NULL);
-            free(modulelist);
+            if (!xf86LoadModules(modulelist, NULL) && !xf86AttemptedFallback) {
+                free(modulelist);
+                xf86AttemptedFallback = TRUE;
+                goto Fallback;
+            }
+            else {
+                free(modulelist);
+            }
         }
 
         /* Load all input driver modules specified in the config file. */
@@ -486,8 +500,15 @@ InitOutput(ScreenInfo * pScreenInfo, int argc, char **argv)
 	if (want_hw_access)
 	    xorgHWAccess = xf86EnableIO();
 
-        if (xf86BusConfig() == FALSE)
-            return;
+        if (xf86BusConfig() == FALSE) {
+            if (!xf86AttemptedFallback) {
+                xf86AttemptedFallback = TRUE;
+                goto Fallback;
+            }
+            else {
+                return;
+            }
+        }
 
         xf86PostProbe();
 
